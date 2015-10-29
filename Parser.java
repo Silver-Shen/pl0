@@ -81,25 +81,6 @@ public class Parser {
 		sym =lex.sym;
 	}
 	
-	/**
-	 * 测试当前符号是否合法
-	 * 
-	 * @param s1 我们需要的符号
-	 * @param s2 如果不是我们需要的，则需要一个补救用的集合
-	 * @param errcode 错误号
-	 */
-	void test(SymSet s1, SymSet s2, int errcode) {
-		// 在某一部分（如一条语句，一个表达式）将要结束时时我们希望下一个符号属于某集合
-		//（该部分的后跟符号），test负责这项检测，并且负责当检测不通过时的补救措施，程
-		// 序在需要检测时指定当前需要的符号集合和补救用的集合（如之前未完成部分的后跟符
-		// 号），以及检测不通过时的错误号。
-		if (!s1.get(sym)) {
-			Err.report(errcode);
-			// 当检测不通过时，不停获取符号，直到它属于需要的集合或补救的集合
-			while (!s1.get(sym) && !s2.get(sym))
-				nextSym();
-		}
-	}
 	
 	/**
 	 * 分析<分程序>
@@ -186,7 +167,7 @@ public class Parser {
 					nxtlev = (SymSet) statbegsys.clone();
 					nxtlev.set(Symbol.ident);
 					nxtlev.set(Symbol.procsym);
-					test(nxtlev, fsys, 6);
+					
 				} else { 
 					Err.report(5);				// 漏掉了分号
 				}
@@ -194,7 +175,7 @@ public class Parser {
 			
 			nxtlev = (SymSet) statbegsys.clone(); 
 			nxtlev.set(Symbol.ident);
-			test(nxtlev, declbegsys, 7);
+			
 		} while (declbegsys.get(sym));		// 直到没有声明符号
 		
 		// 开始生成当前过程代码
@@ -216,7 +197,7 @@ public class Parser {
 		interp.gen(Fct.OPR, 0, 0);		// 每个过程出口都要使用的释放数据段指令
 		
 		nxtlev = new SymSet(symnum);	// 分程序没有补救集合
-		test(fsys, nxtlev, 8);				// 检测后跟符号正确性
+		
 		
 		interp.listcode(cx0);
 		
@@ -297,7 +278,7 @@ public class Parser {
 			break;
 		default:
 			nxtlev = new SymSet(symnum);
-			test(fsys, nxtlev, 19);
+			
 			break;
 		}
 	}
@@ -581,7 +562,7 @@ public class Parser {
 	private void parseFactor(SymSet fsys, int lev) {
 		SymSet nxtlev;
 		
-		test(facbegsys, fsys, 24);			// 检测因子的开始符号
+		
 		// the original while... is problematic: var1(var2+var3)
 		// thanks to macross
 		// while(inset(sym, facbegsys))
@@ -622,10 +603,7 @@ public class Parser {
 					nextSym();
 				else
 					Err.report(22);					// 缺少右括号
-			} else {
-				// 做补救措施
-				test(fsys, facbegsys, 23);
-			}
+			} 
 		}
 	}
 
