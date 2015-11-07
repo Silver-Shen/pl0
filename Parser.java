@@ -450,9 +450,7 @@ public class Parser {
 		if (sym == Symbol.rparen) {
 			nextSym();
 		} else {
-			Err.report(33);					// 格式错误，应是右括号
-			while (!fsys.get(sym))
-				nextSym();
+			Err.report(33);					// 格式错误，应是右括号			
 		}
 	}
 
